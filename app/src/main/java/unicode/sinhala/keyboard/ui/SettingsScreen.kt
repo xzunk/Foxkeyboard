@@ -109,7 +109,7 @@ fun SettingsScreen() {
             title = "Source Code",
             summary = "View on GitHub",
             onClick = {
-                val intent = Intent(Intent.ACTION_VIEW, Uri.parse("https://github.com/Madusanka-Niroshan/Sinhala-Keyboard"))
+                val intent = Intent(Intent.ACTION_VIEW, Uri.parse("https://github.com/xzunk/Foxkeyboard"))
                 context.startActivity(intent)
             }
         )
