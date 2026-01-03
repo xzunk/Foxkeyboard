@@ -1,14 +1,16 @@
 package unicode.sinhala.keyboard
 
+import unicode.sinhala.keyboard.SYMBOL
+
 object Maps {
 
 val wijesekaraMap: Map<String, CHAR> = mapOf(
     "a" to CHAR.SIGN_AL_LAKUNA,
     "A" to CHAR.GAYANUKITTA,
-    "b" to CHAR.IYANNA,
-    "B" to CHAR.IIYANNA,
-    "c" to CHAR.ALPAPRAANA_JAYANNA,
-    "C" to CHAR.MAHAAPRAANA_JAYANNA,
+    "b" to CHAR.ALPAPRAANA_BAYANNA,
+    "B" to CHAR.MAHAAPRAANA_BAYANNA,
+    "c" to CHAR.ALPAPRAANA_DDAYANNA,
+    "C" to CHAR.MAHAAPRAANA_DDAYANNA,
     "d" to CHAR.AELA_PILLA,
     "D" to CHAR.GAETTA_PILLA,
     "e" to CHAR.KETTI_AEDA_PILLA,
@@ -26,10 +28,14 @@ val wijesekaraMap: Map<String, CHAR> = mapOf(
     "K" to CHAR.MUURDHAJA_NAYANNA,
     "l" to CHAR.ALPAPRAANA_KAYANNA,
     "L" to CHAR.MAHAAPRAANA_KAYANNA,
-    "m" to CHAR.ALPAPRAANA_PAYANNA,
-    "M" to CHAR.MAHAAPRAANA_PAYANNA,
-    "n" to CHAR.ALPAPRAANA_BAYANNA,
-    "N" to CHAR.MAHAAPRAANA_BAYANNA,
+
+    "m" to CHAR.DANTAJA_LAYANNA,
+    "M" to CHAR.MUURDHAJA_LAYANNA,
+
+    "n" to CHAR.ALPAPRAANA_PAYANNA,
+
+    "N" to CHAR.MAHAAPRAANA_PAYANNA,
+
     "o" to CHAR.ALPAPRAANA_DAYANNA,
     "O" to CHAR.MAHAAPRAANA_DAYANNA,
     "p" to CHAR.ALPAPRAANA_CAYANNA,
@@ -44,14 +50,17 @@ val wijesekaraMap: Map<String, CHAR> = mapOf(
     "T" to CHAR.OYANNA,
     "u" to CHAR.MAYANNA,
     "U" to CHAR.AMBA_BAYANNA,
-    "v" to CHAR.ALPAPRAANA_DDAYANNA,
-    "V" to CHAR.MAHAAPRAANA_DDAYANNA,
+
+    "v" to CHAR.IYANNA,
+    "V" to CHAR.IIYANNA,
+
     "w" to CHAR.AYANNA,
     "W" to CHAR.UYANNA,
-    "x" to CHAR.SIGN_ANUSVARAYA,
-    "X" to CHAR.KANTAJA_NAASIKYAYA,
+    "x" to CHAR.ALPAPRAANA_JAYANNA,
+    "X" to CHAR.MAHAAPRAANA_JAYANNA,
     "y" to CHAR.HAYANNA,
     "Y" to CHAR.TAALUJA_SAYANNA,
+    "z" to CHAR.ALPAPRAANA_TAYANNA,
     "." to CHAR.ALPAPRAANA_GAYANNA,
     ">" to CHAR.MAHAAPRAANA_GAYANNA,
     "," to CHAR.DANTAJA_LAYANNA,
@@ -61,7 +70,7 @@ val wijesekaraMap: Map<String, CHAR> = mapOf(
     "1" to CHAR.SIGN_RAKARANSHAYA,
     "2" to CHAR.SIGN_REEPAYA,
     "3" to CHAR.SIGN_VISARGAYA,
-    "4" to CHAR.KANTAJA_NAASIKYAYA,
+    "4" to CHAR.SIGN_ANUSVARAYA,
     "5" to CHAR.TAALUJA_NAASIKYAYA,
     "6" to CHAR.TAALUJA_SANYOOGA_NAAKSIKYAYA,
     "7" to CHAR.SANYAKA_GAYANNA,
@@ -123,7 +132,7 @@ val singlishMap: Map<String, CHAR> = mapOf(
 )
 val symbolsMap: Map<String, String> = mapOf(
     "q" to SYMBOL.LOW_LINE.text,
-    "w" to SYMBOL.REVERSE_SOLIDUS.text,
+    "w" to SYMBOL.EXCLAMATION_MARK.text,
     "e" to SYMBOL.VERTICAL_LINE.text,
     "r" to SYMBOL.EQUALS_SIGN.text,
     "t" to SYMBOL.LEFT_SQUARE_BRACKET.text,
@@ -146,7 +155,7 @@ val symbolsMap: Map<String, String> = mapOf(
     "c" to SYMBOL.APOSTROPHE.text,
     "v" to SYMBOL.COLON.text,
     "b" to SYMBOL.SEMICOLON.text,
-    "n" to SYMBOL.EXCLAMATION_MARK.text,
+    "n" to SYMBOL.REVERSE_SOLIDUS.text,
     "m" to SYMBOL.QUESTION_MARK.text,
     "s1" to SYMBOL.SOLIDUS.text
 )
@@ -171,11 +180,11 @@ val symbolsMapShifted: Map<String, String> = mapOf(
     "k" to SYMBOL.CARE_OF.text,
     "l" to SYMBOL.PLUS_MINUS_SIGN.text,
     "z" to SYMBOL.BULLET.text,
-    "x" to SYMBOL.CIRCLED_CC.text,
+    "x" to SYMBOL.SOLIDUS.text,
     "c" to SYMBOL.CIRCLED_ZERO_WITH_SLASH.text,
     "v" to SYMBOL.CIRCLED_HUMAN_FIGURE.text,
     "b" to SYMBOL.CIRCLED_ANTICLOCKWISE_ARROW.text,
-    "n" to SYMBOL.CIRCLED_DOLLAR_SIGN_WITH_OVERLAID_BACKSLASH.text,
+    "n" to SYMBOL.SOLIDUS.text,
     "m" to SYMBOL.CIRCLED_EQUALS.text,
     "s1" to SYMBOL.SOLIDUS.text
 )
@@ -238,8 +247,8 @@ val keyLabelsLettersEnglishShifted = mapOf(
 )
 val keyLabelsLettersWijesekara: Map<String, String> = mapOf(
     "a" to CHAR.SIGN_AL_LAKUNA.text,
-    "b" to CHAR.IYANNA.text,
-    "c" to CHAR.ALPAPRAANA_JAYANNA.text,
+    "b" to CHAR.ALPAPRAANA_BAYANNA.text,
+    "c" to CHAR.ALPAPRAANA_DDAYANNA.text,
     "d" to CHAR.AELA_PILLA.text,
     "e" to CHAR.KETTI_AEDA_PILLA.text,
     "f" to CHAR.KOMBUVA.text,
@@ -249,8 +258,10 @@ val keyLabelsLettersWijesekara: Map<String, String> = mapOf(
     "j" to CHAR.VAYANNA.text,
     "k" to CHAR.DANTAJA_NAYANNA.text,
     "l" to CHAR.ALPAPRAANA_KAYANNA.text,
-    "m" to CHAR.ALPAPRAANA_PAYANNA.text,
-    "n" to CHAR.ALPAPRAANA_BAYANNA.text,
+
+    "m" to CHAR.DANTAJA_LAYANNA.text,
+    "n" to CHAR.ALPAPRAANA_PAYANNA.text,
+
     "o" to CHAR.ALPAPRAANA_DAYANNA.text,
     "p" to CHAR.ALPAPRAANA_CAYANNA.text,
     "q" to CHAR.KETTI_PAA_PILLA.text,
@@ -258,16 +269,16 @@ val keyLabelsLettersWijesekara: Map<String, String> = mapOf(
     "s" to CHAR.KETTI_IS_PILLA.text,
     "t" to CHAR.EYANNA.text,
     "u" to CHAR.MAYANNA.text,
-    "v" to CHAR.ALPAPRAANA_DDAYANNA.text,
+    "v" to CHAR.IYANNA.text,
     "w" to CHAR.AYANNA.text,
-    "x" to CHAR.SIGN_ANUSVARAYA.text,
+    "x" to CHAR.ALPAPRAANA_JAYANNA.text,
     "y" to CHAR.HAYANNA.text,
-    "z" to "z"
+    "z" to CHAR.ALPAPRAANA_TAYANNA.text
 )
 val keyLabelsLettersWijesekaraShifted: Map<String, String> = mapOf(
     "a" to CHAR.GAYANUKITTA.text,
-    "b" to CHAR.IIYANNA.text,
-    "c" to CHAR.MAHAAPRAANA_JAYANNA.text,
+    "b" to CHAR.MAHAAPRAANA_BAYANNA.text,
+    "c" to CHAR.MAHAAPRAANA_DDAYANNA.text,
     "d" to CHAR.GAETTA_PILLA.text,
     "e" to CHAR.DIGA_AEDA_PILLA.text,
     "f" to CHAR.FAYANNA.text,
@@ -277,8 +288,8 @@ val keyLabelsLettersWijesekaraShifted: Map<String, String> = mapOf(
     "j" to CHAR.MUURDHAJA_LAYANNA.text + CHAR.KETTI_PAA_PILLA.text,
     "k" to CHAR.MUURDHAJA_NAYANNA.text,
     "l" to CHAR.MAHAAPRAANA_KAYANNA.text,
-    "m" to CHAR.MAHAAPRAANA_PAYANNA.text,
-    "n" to CHAR.MAHAAPRAANA_BAYANNA.text,
+    "m" to CHAR.MUURDHAJA_LAYANNA.text,
+    "n" to CHAR.MAHAAPRAANA_PAYANNA.text,
     "o" to CHAR.MAHAAPRAANA_DAYANNA.text,
     "p" to CHAR.MAHAAPRAANA_CAYANNA.text,
     "q" to CHAR.DIGA_PAA_PILLA.text,
@@ -286,11 +297,11 @@ val keyLabelsLettersWijesekaraShifted: Map<String, String> = mapOf(
     "s" to CHAR.DIGA_IS_PILLA.text,
     "t" to CHAR.OYANNA.text,
     "u" to CHAR.AMBA_BAYANNA.text,
-    "v" to CHAR.MAHAAPRAANA_DDAYANNA.text,
+    "v" to CHAR.IIYANNA.text,
     "w" to CHAR.UYANNA.text,
-    "x" to CHAR.KANTAJA_NAASIKYAYA.text,
+    "x" to CHAR.MAHAAPRAANA_JAYANNA.text,
     "y" to CHAR.TAALUJA_SAYANNA.text,
-    "z" to "Z"
+    "z" to CHAR.MAHAAPRAANA_TAYANNA.text
 )
 
 val keyLabelsNumbers: Map<String, String> = mapOf(
@@ -309,7 +320,7 @@ val keyLabelsNumbersWijesekara: Map<String, String> = mapOf(
     "1" to CHAR.SIGN_RAKARANSHAYA.text,
     "2" to CHAR.SIGN_REEPAYA.text,
     "3" to CHAR.SIGN_VISARGAYA.text,
-    "4" to CHAR.KANTAJA_NAASIKYAYA.text,
+    "4" to CHAR.SIGN_ANUSVARAYA.text,
     "5" to CHAR.TAALUJA_NAASIKYAYA.text,
     "6" to CHAR.TAALUJA_SANYOOGA_NAAKSIKYAYA.text,
     "7" to CHAR.SANYAKA_GAYANNA.text,

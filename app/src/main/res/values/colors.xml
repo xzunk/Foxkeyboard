@@ -2,25 +2,36 @@
 
 
 <resources>
+    <!-- Light / Neutral tokens -->
     <color name="light_1">#D9D9D9</color>
     <color name="light_2">#a6a6a6</color>
+
+    <!-- Dark / Neutral tokens -->
     <color name="night_1">#262626</color>
     <color name="night_2">#595959</color>
 
-    <color name="blue">#3956aa</color>
-    <color name="yellow">#dfc540</color>
+    <!-- Text tokens (explicit, used by themes) -->
+    <color name="text_on_light">#000000</color> <!-- black for light backgrounds -->
+    <color name="text_on_light_variant">#222222</color>
+    <color name="text_on_dark">#FFFFFF</color> <!-- white for dark backgrounds -->
+    <color name="text_on_dark_variant">#E0E0E0</color>
 
-    <!-- Gboard Style Colors -->
-    <color name="gboard_bg_light">#ECEFF1</color>
-    <color name="gboard_key_light">#FFFFFF</color>
-    <color name="gboard_func_light">#CFD8DC</color>
-    <color name="gboard_func_pressed_light">#B0BEC5</color>
-    
-    <color name="gboard_bg_dark">#263238</color>
-    <color name="gboard_key_dark">#455A64</color>
-    <color name="gboard_func_dark">#37474F</color>
-    <color name="gboard_func_pressed_dark">#263238</color>
-    
+    <!-- Updated Gboard-style key palette (white/black based fallbacks) -->
+    <color name="gboard_bg_light">#FFFFFF</color>        <!-- keyboard background (light) -->
+    <color name="gboard_key_light">#F5F5F5</color>       <!-- normal key (light) -->
+    <color name="gboard_func_light">#E8E8E8</color>      <!-- function key (light) -->
+    <color name="gboard_func_pressed_light">#DADADA</color>
+
+    <color name="gboard_bg_dark">#121212</color>         <!-- keyboard background (dark) -->
+    <color name="gboard_key_dark">#1E1E1E</color>        <!-- normal key (dark) -->
+    <color name="gboard_func_dark">#2A2A2A</color>       <!-- function key (dark) -->
+    <color name="gboard_func_pressed_dark">#333333</color>
+
+    <!-- Action / Accent colors (keep existing action blue) -->
     <color name="gboard_action_blue">#4285F4</color>
     <color name="gboard_action_blue_pressed">#3367D6</color>
+
+    <!-- Misc tokens kept for compatibility -->
+    <color name="blue">#3956aa</color>
+    <color name="yellow">#dfc540</color>
 </resources>

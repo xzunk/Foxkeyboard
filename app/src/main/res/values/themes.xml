@@ -1,38 +1,80 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <style name="unicodesinhala" parent="Theme.MaterialComponents.DayNight.NoActionBar">
-        <item name="accent">@color/blue</item>
-        <item name="foreground">@color/light_1</item>
-        <item name="foreground_2">@color/light_2</item>
+        <!-- General background and text -->
+        <item name="fox_background">@color/gboard_bg_light</item>
+        <item name="accent">@color/gboard_action_blue</item>
+        <item name="foreground">@color/text_on_light</item>
+        <item name="foreground_2">@color/text_on_light_variant</item>
         <item name="isLight">true</item>
+
+        <!-- Key surfaces and borders -->
         <item name="border">@color/gboard_bg_light</item>
-        <item name="keyNormal">@color/gboard_bg_light</item>
-        <item name="keyFunction">@color/gboard_key_light</item>
-        <item name="keyAction">@color/blue</item>
-        <item name="keyNormalPressed">@color/night_2</item>
-        <item name="keyFunctionPressed">@color/night_2</item>
-        <item name="keyActionPressed">@color/blue</item>
+        <item name="keyNormal">@color/gboard_key_light</item>
+        <item name="keyFunction">@color/gboard_func_light</item>
+        <item name="keyAction">@color/gboard_action_blue</item>
+
+        <!-- Pressed states -->
+        <item name="keyNormalPressed">@color/gboard_func_pressed_light</item>
+        <item name="keyFunctionPressed">@color/gboard_func_pressed_light</item>
+        <item name="keyActionPressed">@color/gboard_action_blue_pressed</item>
         <item name="keyShadowColor">#40000000</item>
+
+        <!-- Special keys -->
         <item name="keySpecial">@color/gboard_key_light</item>
         <item name="keySpecialPressed">@color/gboard_func_pressed_light</item>
     </style>
 
     <style name="Theme.fox"
         parent="Theme.MaterialComponents.DayNight.NoActionBar">
-        <item name="colorPrimary">@color/blue</item>
-        <item name="colorOnPrimary">@color/light_1</item>
+        <item name="fox_background">@color/gboard_bg_light</item>
+        <item name="colorPrimary">@color/gboard_action_blue</item>
+        <item name="colorOnPrimary">@color/text_on_light</item>
         <item name="colorSurface">@color/gboard_bg_light</item>
-        <item name="colorOnSurface">@color/night_1</item>
-        <item name="colorOnSurfaceVariant">@color/night_2</item>
+        <item name="colorOnSurface">@color/text_on_light</item>
+        <item name="colorOnSurfaceVariant">@color/text_on_light_variant</item>
         <item name="preferenceTheme">@style/ThemeOverlay.fox.Preference</item>
     </style>
 
     <style name="ThemeOverlay.fox.Preference"
         parent="PreferenceThemeOverlay">
-        <item name="android:textColorPrimary">@color/night_1</item>
-        <item name="android:textColorSecondary">@color/night_2</item>
-        <item name="colorControlActivated">@color/blue</item>
+        <item name="android:textColorPrimary">@color/text_on_light</item>
+        <item name="android:textColorSecondary">@color/text_on_light_variant</item>
+        <item name="colorControlActivated">@color/gboard_action_blue</item>
     </style>
 
+    <!-- Light fallback (pre-v31) -->
+    <style name="Light" parent="unicodesinhala">
+        <item name="isLight">true</item>
+    </style>
+
+    <style name="LightNoBorder" parent="Light">
+        <item name="border">@android:color/transparent</item>
+    </style>
+
+    <!-- Night fallback (pre-v31) -->
+    <style name="Night" parent="unicodesinhala">
+        <item name="isLight">false</item>
+        <!-- Override to dark tokens -->
+        <item name="fox_background">@color/gboard_bg_dark</item>
+        <item name="foreground">@color/text_on_dark</item>
+        <item name="foreground_2">@color/text_on_dark_variant</item>
+        <item name="border">@color/gboard_bg_dark</item>
+
+        <!-- Keys -->
+        <item name="keyNormal">@color/gboard_key_dark</item>
+        <item name="keyFunction">@color/gboard_func_dark</item>
+        <item name="keyAction">@color/gboard_action_blue</item>
+
+        <!-- Pressed states -->
+        <item name="keyNormalPressed">@color/gboard_func_pressed_dark</item>
+        <item name="keyFunctionPressed">@color/gboard_func_pressed_dark</item>
+        <item name="keyActionPressed">@color/gboard_action_blue_pressed</item>
+    </style>
+
+    <style name="NightNoBorder" parent="Night">
+        <item name="border">@android:color/transparent</item>
+    </style>
 
 </resources>
+

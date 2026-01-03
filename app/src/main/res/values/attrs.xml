@@ -2,11 +2,14 @@
 <resources>
 
     <!-- Custom theme/token attributes used by the project -->
+    <attr name="fox_background" format="reference|color" />
     <attr name="accent" format="color" />
     <attr name="foreground" format="color" />
     <attr name="foreground_2" format="color" />
     <attr name="isLight" format="boolean" />
     <attr name="border" format="color" />
+
+
 
     <!-- Keyboard key colors -->
     <attr name="keyNormal" format="color" />

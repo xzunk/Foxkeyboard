@@ -5,7 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:background="?attr/background">
+    android:background="?attr/fox_background">
 
     <HorizontalScrollView
         android:id="@+id/emoji_categories_scroll"

@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Night-specific fallbacks for pre-v31 devices -->
+    <style name="Night" parent="unicodesinhala">
+        <item name="fox_background">@color/gboard_bg_dark</item>
+        <item name="accent">@color/gboard_action_blue</item>
+        <item name="foreground">@color/text_on_dark</item>
+        <item name="foreground_2">@color/text_on_dark_variant</item>
+        <item name="isLight">false</item>
+        <item name="border">@color/gboard_bg_dark</item>
+
+        <!-- Keys -->
+        <item name="keyNormal">@color/gboard_key_dark</item>
+        <item name="keyFunction">@color/gboard_func_dark</item>
+        <item name="keyAction">@color/gboard_action_blue</item>
+        <item name="keyNormalPressed">@color/gboard_func_pressed_dark</item>
+        <item name="keyFunctionPressed">@color/gboard_func_pressed_dark</item>
+        <item name="keyActionPressed">@color/gboard_action_blue_pressed</item>
+        <item name="keyShadowColor">#40000000</item>
+    </style>
+
+    <style name="NightNoBorder" parent="Night">
+        <item name="border">@android:color/transparent</item>
+    </style>
+</resources>

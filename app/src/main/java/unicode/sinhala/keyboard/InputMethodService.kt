@@ -33,6 +33,7 @@ import ime.suggest.LanguageDetector
 import ime.imeui.DebouncedInputHandler
 import ime.imeui.TopBarController
 import android.widget.TextView
+import androidx.compose.ui.semantics.text
 import java.text.Normalizer
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleOwner
@@ -57,7 +58,7 @@ class InputMethodService : android.inputmethodservice.InputMethodService(),
 
     private var mComposing = ""
     private var tComposing = ""
-    
+
 
     private val serviceJob = Job()
     private val serviceScope = CoroutineScope(Dispatchers.Main + serviceJob)
@@ -70,7 +71,7 @@ class InputMethodService : android.inputmethodservice.InputMethodService(),
     private var topBarController: TopBarController? = null
     private var suggestionTextViews: List<TextView> = emptyList()
     private var suggestionsEnabled = true
-    
+
     // Lifecycle and SavedStateRegistry support
     private val lifecycleRegistry = LifecycleRegistry(this)
     private val savedStateRegistryController = SavedStateRegistryController.create(this)
@@ -78,10 +79,10 @@ class InputMethodService : android.inputmethodservice.InputMethodService(),
 
     override val lifecycle: Lifecycle
         get() = lifecycleRegistry
-        
+
     override val savedStateRegistry: SavedStateRegistry
         get() = savedStateRegistryController.savedStateRegistry
-        
+
     override val viewModelStore: ViewModelStore
         get() = store
 
@@ -89,7 +90,7 @@ class InputMethodService : android.inputmethodservice.InputMethodService(),
         super.onCreate()
         savedStateRegistryController.performRestore(null)
         lifecycleRegistry.handleLifecycleEvent(Lifecycle.Event.ON_CREATE)
-        
+
         Log.d("IME", "onCreate called")
         suggestionEngine = SuggestionEngine(this)
         // Initialize engine asynchronously
@@ -97,7 +98,7 @@ class InputMethodService : android.inputmethodservice.InputMethodService(),
             suggestionEngine?.initializeIfNeeded()
         }
         debouncer = DebouncedInputHandler(serviceScope, 700L)
-        
+
         EmojiData.loadRecentEmojis(this)
     }
 
@@ -109,35 +110,107 @@ class InputMethodService : android.inputmethodservice.InputMethodService(),
         Log.d("IME", "onDestroy called")
     }
 
+    private fun commitWijesekaraChar(char: String) {
+        val ic = currentInputConnection ?: return
+        val before = ic.getTextBeforeCursor(1, 0)?.toString() ?: ""
+
+        val composed = when (before + char) {
+            "අැ" -> "ඇ"
+            "අා" -> "ආ"
+            "එ්" -> "ඒ"
+            "එෙ" -> "ඓ"
+            "ෙඑ" -> "ඓ"
+            "ඔ්" -> "ඕ"
+            "උ්" -> "ඌ"
+
+
+            // Consonant + 'e' sign combinations
+
+
+            else -> null
+        }
+
+        if (composed != null) {
+            // If we have a composition, delete the previous character and commit the new one.
+            ic.deleteSurroundingText(1, 0)
+            ic.commitText(composed, 1)
+        } else {
+            // Otherwise, just commit the character the user typed.
+            ic.commitText(char, 1)
+        }
+    }
+
+
+
     override fun onCreateInputView(): View {
         lifecycleRegistry.handleLifecycleEvent(Lifecycle.Event.ON_START)
         if (::keyboardView.isInitialized) return keyboardView
 
-        keyboardView = KeyboardView(
-            this,
-            this,
-            this,
-            Prefs.getRowHeight(this),
-            Prefs.getDarkTheme(this),
-            Prefs.getKeyBorders(this),
-            Prefs.getSwipeToErase(this),
-            Prefs.getSwipeToMoveCursor(this),
-            Prefs.getTextSize(this)
-        )
+        try {
+            keyboardView = KeyboardView(
+                this,
+                this,
+                this,
+                Prefs.getRowHeight(this),
+                Prefs.getDarkTheme(this),
+                Prefs.getKeyBorders(this),
+                Prefs.getSwipeToErase(this),
+                Prefs.getSwipeToMoveCursor(this),
+                Prefs.getTextSize(this)
+            )
 
-        keyboardLayout = Prefs.getSelectedLayout(this)
-         setKeyboardLayout(keyboardLayout)
+            keyboardLayout = Prefs.getSelectedLayout(this)
+            setKeyboardLayout(keyboardLayout)
 
-         // Setup top bar controller with views from keyboardView and pass dark theme preference
-         topBarController = TopBarController(
-            keyboardView.suggestionContainerView,
-            keyboardView.emojiButtonView,
-            Prefs.getDarkTheme(this)
-         )
-         suggestionTextViews = keyboardView.getSuggestionTextViews()
+            // Setup top bar controller with views from keyboardView and pass dark theme preference
+            topBarController = TopBarController(
+                keyboardView.suggestionContainerView,
+                keyboardView.emojiButtonView,
+                Prefs.getDarkTheme(this)
+            )
+            suggestionTextViews = keyboardView.getSuggestionTextViews()
 
-         return keyboardView
-     }
+            return keyboardView
+        } catch (t: Throwable) {
+            Log.e("IME", "Keyboard view creation failed, providing safe fallback view", t)
+
+            // Provide a safe, minimal fallback view so IME does not crash.
+            val fallback = View(this)
+            try {
+                // Attempt to set a sensible background color from theme attr if available, else default to white/black depending on night mode
+                val typedValue = android.util.TypedValue()
+                val theme = theme
+                // First try app-specific fox_background (safe, non-colliding), then fall back to platform background attr
+                var got = theme.resolveAttribute(R.attr.fox_background, typedValue, true)
+                if (!got) {
+                    try {
+                        got = theme.resolveAttribute(android.R.attr.background, typedValue, true)
+                    } catch (_: Exception) {
+                        // some devices/themes might not expose android attr; ignore and fallback below
+                        got = false
+                    }
+                }
+                if (got) {
+                    if (typedValue.resourceId != 0) {
+                        fallback.setBackgroundResource(typedValue.resourceId)
+                    } else {
+                        try {
+                            fallback.setBackgroundColor(typedValue.data)
+                        } catch (e: Exception) {
+                            fallback.setBackgroundColor(if (Prefs.getDarkTheme(this)) 0xFF263238.toInt() else 0xFFECEFF1.toInt())
+                        }
+                    }
+                } else {
+                    fallback.setBackgroundColor(if (Prefs.getDarkTheme(this)) 0xFF263238.toInt() else 0xFFECEFF1.toInt())
+                }
+            } catch (inner: Throwable) {
+                Log.e("IME", "Failed to set fallback background", inner)
+            }
+
+            // Return fallback view to avoid crashing the IME.
+            return fallback
+        }
+    }
 
      override fun onStartInputView(info: EditorInfo?, restarting: Boolean) {
          super.onStartInputView(info, restarting)
@@ -203,7 +276,7 @@ class InputMethodService : android.inputmethodservice.InputMethodService(),
         mComposing = ""
         tComposing = ""
     }
-    
+
     override fun onEvaluateFullscreenMode(): Boolean {
 
         return false
@@ -237,33 +310,29 @@ class InputMethodService : android.inputmethodservice.InputMethodService(),
     }
 
     override fun letterOrSymbolClick(tag: String) {
-        if (keyboardLayout == KeyboardLayout.SINGLISH && !keyboardSymbolsActive) {
-            singlishInput(tag)
-        } else {
+        when {
+            keyboardLayout == KeyboardLayout.SINGLISH && !keyboardSymbolsActive -> {
+                singlishInput(tag)
+            }
 
-            val output = tag
-            val ic = currentInputConnection
-            if (ic != null) {
-                try {
-                    ic.commitText(output, 1)
-                } catch (t: Throwable) {
-                    Log.e("IME", "commitText failed", t)
-                }
-            } else {
-                Log.w("IME", "currentInputConnection is null in letterOrSymbolClick")
+            keyboardLayout == KeyboardLayout.WIJESEKARA && !keyboardSymbolsActive -> {
+                commitWijesekaraChar(tag)
+            }
+
+            else -> {
+                currentInputConnection?.commitText(tag, 1)
             }
         }
 
         vibrate()
 
-        // Fetch last token before cursor and request suggestions
         try {
-            val textBefore = currentInputConnection.getTextBeforeCursor(50, 0)?.toString() ?: ""
+            val textBefore = currentInputConnection
+                ?.getTextBeforeCursor(50, 0)
+                ?.toString() ?: ""
             val token = textBefore.takeLastWhile { !it.isWhitespace() }
             requestSuggestionsForToken(token)
-        } catch (t: Throwable) {
-            Log.w("IME", "failed to update suggestions on letter click", t)
-        }
+        } catch (_: Throwable) {}
 
         checkAutoUnshift()
     }
@@ -725,6 +794,7 @@ class InputMethodService : android.inputmethodservice.InputMethodService(),
         checkAutoUnshift()
     }
 
+
     override fun functionClick(type: Function) {
         val ic = currentInputConnection
         when (type) {
@@ -798,6 +868,8 @@ class InputMethodService : android.inputmethodservice.InputMethodService(),
                             ic.deleteSurroundingTextInCodePoints(1, 0)
                         } else {
                             ic.commitText("", 1)
+
+
                         }
                     } catch (t: Throwable) {
                         Log.e("IME", "BACKSPACE operation failed", t)
@@ -812,7 +884,6 @@ class InputMethodService : android.inputmethodservice.InputMethodService(),
                 positionFlag = ""
                 mComposing = ""
             }
-
             Function.PANEL -> {
 
                 keyboardSymbolsActive = !keyboardSymbolsActive
@@ -840,6 +911,8 @@ class InputMethodService : android.inputmethodservice.InputMethodService(),
                 } else tag
 
                 ic.commitText(toCommit, 1)
+
+
             } catch (t: Throwable) {
                 Log.e("IME", "specialClick commit failed", t)
             }
@@ -930,7 +1003,11 @@ class InputMethodService : android.inputmethodservice.InputMethodService(),
              KeyboardLayout.WIJESEKARA -> {
                  keyboardView.setLangIndicator("SI")
                  keyboardView.setLangIndicatorIcon(R.drawable.ic_lang_si)
+
+
                  updateKeyboard()
+
+
              }
              KeyboardLayout.SINGLISH -> {
                  keyboardView.setLangIndicator("SI")
@@ -979,13 +1056,15 @@ class InputMethodService : android.inputmethodservice.InputMethodService(),
                 val specialKeys = if (caps) keyLabelsSpecialWijesekaraSinhalaShifted else keyLabelsSpecialWijesekaraSinhala
                 keyboardView.setSpecialKeys(specialKeys)
                 keyboardView.setSecondaryLabels(null)
+
+
             }
 
             KeyboardLayout.SINGLISH -> {
                 keyboardView.setLetterKeys(keySet)
                 keyboardView.setNumberKeys(keyLabelsNumbers)
                 keyboardView.setSpecialKeys(keyLabelsSpecialEnglish)
-                
+
 
                 val labels = mutableMapOf<String, String>()
                 for ((k, v) in keySet) {
@@ -1004,7 +1083,7 @@ class InputMethodService : android.inputmethodservice.InputMethodService(),
             if (caps) R.drawable.ic_shift_pressed
             else R.drawable.ic_shift
         )
-        
+
 
         val editorInfo = currentInputEditorInfo
         if (editorInfo != null) {
@@ -1053,6 +1132,8 @@ class InputMethodService : android.inputmethodservice.InputMethodService(),
             Log.e("IME", "vibrate failed", t)
         }
     }
+
+
 
 
     private fun erasePrevious(count: Int = 1) {

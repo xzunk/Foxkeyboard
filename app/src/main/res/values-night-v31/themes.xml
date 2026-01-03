@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <style name="Night" parent="unicodesinhala">
+        <item name="fox_background">@android:color/system_neutral1_900</item>
+        <item name="accent">@android:color/system_accent1_200</item>
+        <item name="foreground">@android:color/system_neutral1_100</item>
+        <item name="foreground_2">@android:color/system_neutral2_400</item>
+        <item name="isLight">false</item>
+        <item name="border">@android:color/system_neutral1_900</item>
+
+        <!-- Keys -->
+        <item name="keyNormal">@android:color/system_neutral1_800</item>
+        <item name="keyFunction">@android:color/system_neutral2_800</item>
+        <item name="keyAction">@android:color/system_accent1_700</item>
+
+        <!-- Pressed States -->
+        <item name="keyNormalPressed">@android:color/system_neutral1_700</item>
+        <item name="keyFunctionPressed">@android:color/system_neutral2_700</item>
+        <item name="keyActionPressed">@android:color/system_accent1_600</item>
+        <item name="keyShadowColor">#40000000</item>
+    </style>
+
+    <style name="NightNoBorder" parent="Night">
+        <item name="border">?attr/fox_background</item>
+        <item name="keyShadowColor">@android:color/transparent</item>
+        <item name="keyNormal">@android:color/transparent</item>
+        <item name="keyFunction">@android:color/transparent</item>
+    </style>
+
+
+
+</resources>
+
