@@ -248,14 +248,7 @@ eval "set -- $(
         tr '\n' ' '
     )" '"$@"'
 
-distributionBase=GRADLE_USER_HOME
-distributionPath=wrapper/dists
-distributionUrl=https\://services.gradle.org/distributions/gradle-9.0-milestone-1-bin.zip
-distributionSha256Sum=6963d0abe43cacb1e159bbc28a0e4e80c1622c0384549c3792257981d89d37ed
-networkTimeout=10000
-validateDistributionUrl=true
-zipStoreBase=GRADLE_USER_HOME
-zipStorePath=wrapper/dists
+
 
 
 
