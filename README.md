@@ -1,6 +1,5 @@
 # Fox Keyboard
 
-<img alt="Logo" src="https://raw.githubusercontent.com/xzunk/Foxkeyboard/2b4177585a44cb0777649333085ee2fecfbca4d9/app/src/main/ic_launcher-playstore.png" width="120" />
 
 
 **Fox Keyboard** is Sri Lanka's premier open-source Sinhala keyboard app for Android. Designed with privacy in mind to help users avoid government tracking, it promotes open-source collaboration and is entirely donation-based. This lightweight, fast-performing keyboard supports Android 5.0 and above, ensuring broad compatibility across devices.
