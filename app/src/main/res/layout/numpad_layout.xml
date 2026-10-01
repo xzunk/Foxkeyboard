@@ -1,0 +1,204 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/numpad_root"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="?attr/fox_background">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:orientation="horizontal">
+
+        <unicode.sinhala.keyboard.KeyboardButton
+            android:id="@+id/num_1"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:tag="1"
+            android:text="1"
+            android:textSize="22sp" />
+
+        <unicode.sinhala.keyboard.KeyboardButton
+            android:id="@+id/num_2"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:tag="2"
+            android:text="2"
+            android:textSize="22sp" />
+
+        <unicode.sinhala.keyboard.KeyboardButton
+            android:id="@+id/num_3"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:tag="3"
+            android:text="3"
+            android:textSize="22sp" />
+
+        <ImageView
+            android:id="@+id/num_backspace"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:background="@drawable/key_background_function"
+            android:padding="14dp"
+            android:scaleType="centerInside"
+            android:src="@drawable/ic_backspace"
+            android:contentDescription="Backspace" />
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:orientation="horizontal">
+
+        <unicode.sinhala.keyboard.KeyboardButton
+            android:id="@+id/num_4"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:tag="4"
+            android:text="4"
+            android:textSize="22sp" />
+
+        <unicode.sinhala.keyboard.KeyboardButton
+            android:id="@+id/num_5"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:tag="5"
+            android:text="5"
+            android:textSize="22sp" />
+
+        <unicode.sinhala.keyboard.KeyboardButton
+            android:id="@+id/num_6"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:tag="6"
+            android:text="6"
+            android:textSize="22sp" />
+
+        <unicode.sinhala.keyboard.KeyboardButton
+            android:id="@+id/num_minus"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:tag="-"
+            android:text="-"
+            android:textSize="22sp"
+            android:background="@drawable/key_background_function" />
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:orientation="horizontal">
+
+        <unicode.sinhala.keyboard.KeyboardButton
+            android:id="@+id/num_7"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:tag="7"
+            android:text="7"
+            android:textSize="22sp" />
+
+        <unicode.sinhala.keyboard.KeyboardButton
+            android:id="@+id/num_8"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:tag="8"
+            android:text="8"
+            android:textSize="22sp" />
+
+        <unicode.sinhala.keyboard.KeyboardButton
+            android:id="@+id/num_9"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:tag="9"
+            android:text="9"
+            android:textSize="22sp" />
+
+        <unicode.sinhala.keyboard.KeyboardButton
+            android:id="@+id/num_plus"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:tag="+"
+            android:text="+"
+            android:textSize="22sp"
+            android:background="@drawable/key_background_function" />
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:orientation="horizontal">
+
+        <ImageView
+            android:id="@+id/num_abc"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:background="@drawable/key_background_function"
+            android:padding="12dp"
+            android:scaleType="centerInside"
+            android:src="@drawable/ic_keyboard"
+            android:contentDescription="Keyboard" />
+
+        <unicode.sinhala.keyboard.KeyboardButton
+            android:id="@+id/num_comma"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:tag=","
+            android:text=","
+            android:textSize="22sp"
+            android:background="@drawable/key_background_function" />
+
+        <unicode.sinhala.keyboard.KeyboardButton
+            android:id="@+id/num_0"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:tag="0"
+            android:text="0"
+            android:textSize="22sp" />
+
+        <unicode.sinhala.keyboard.KeyboardButton
+            android:id="@+id/num_dot"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:tag="."
+            android:text="."
+            android:textSize="22sp"
+            android:background="@drawable/key_background_function" />
+
+        <ImageView
+            android:id="@+id/num_action"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:background="@drawable/key_background_action"
+            android:padding="8dp"
+            android:scaleType="centerInside"
+            android:src="@drawable/ic_keyboard_return"
+            android:contentDescription="Enter" />
+
+    </LinearLayout>
+
+</LinearLayout>

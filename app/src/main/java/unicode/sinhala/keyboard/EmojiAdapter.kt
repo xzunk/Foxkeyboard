@@ -1,5 +1,6 @@
 package unicode.sinhala.keyboard
 
+import android.R
 import android.content.Context
 import android.graphics.Color
 import android.util.TypedValue
@@ -21,17 +22,19 @@ class EmojiAdapter(
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): EmojiViewHolder {
         val tv = TextView(context)
-        // Use wrap_content so items size to their content (prevents raw gaps caused by MATCH_PARENT)
-        tv.layoutParams = RecyclerView.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT)
+        val density = context.resources.displayMetrics.density
+        val itemSize = (44 * density).toInt()
+        tv.layoutParams = RecyclerView.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, itemSize)
         tv.gravity = Gravity.CENTER
         tv.textAlignment = TextView.TEXT_ALIGNMENT_CENTER
-        tv.setTextSize(TypedValue.COMPLEX_UNIT_SP, textSize.toFloat())
-        // Convert 8dp padding to pixels for consistent spacing across densities
-        val pad = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 8f, context.resources.displayMetrics).toInt()
-        tv.setPadding(pad, pad, pad, pad)
-        // Remove extra font padding which can cause uneven rows for emoji glyphs
+        tv.setTextSize(TypedValue.COMPLEX_UNIT_SP, (textSize * 0.9f).coerceIn(20f, 32f))
         tv.includeFontPadding = false
         tv.setTextColor(if (darkTheme) Color.WHITE else Color.BLACK)
+        
+        val typedValue = TypedValue()
+        context.theme.resolveAttribute(R.attr.selectableItemBackgroundBorderless, typedValue, true)
+        tv.setBackgroundResource(typedValue.resourceId)
+
         return EmojiViewHolder(tv)
     }
 
@@ -39,7 +42,6 @@ class EmojiAdapter(
         val emoji = items[position]
         holder.textView.text = emoji
         holder.textView.setOnClickListener {
-            // Route to the keyboard's emojiClick handler
             clickListener.emojiClick(emoji)
         }
     }

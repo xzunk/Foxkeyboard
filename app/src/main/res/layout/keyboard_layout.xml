@@ -30,12 +30,22 @@
             android:layout_weight="1" />
 
         <ImageView
+            android:id="@+id/btn_clipboard"
+            android:layout_width="40dp"
+            android:layout_height="match_parent"
+            android:src="@drawable/ic_clipboard"
+            android:padding="8dp"
+            android:background="?android:selectableItemBackground"
+            android:contentDescription="Clipboard" />
+
+        <ImageView
             android:id="@+id/btn_emoji"
             android:layout_width="40dp"
             android:layout_height="match_parent"
             android:src="@drawable/ic_emoji"
             android:padding="8dp"
-            android:background="?android:selectableItemBackground"/>
+            android:background="?android:selectableItemBackground"
+            android:contentDescription="Emoji" />
 
     </LinearLayout>
 
@@ -500,6 +510,16 @@
         <include
             android:id="@+id/emoji_view"
             layout="@layout/emoji_layout"
+            android:visibility="gone" />
+
+        <include
+            android:id="@+id/clipboard_view"
+            layout="@layout/clipboard_layout"
+            android:visibility="gone" />
+
+        <include
+            android:id="@+id/numpad_view"
+            layout="@layout/numpad_layout"
             android:visibility="gone" />
     </FrameLayout>
 </LinearLayout>

@@ -1,12 +1,15 @@
 package unicode.sinhala.keyboard
 
+import android.content.ClipboardManager
 import android.graphics.Color
 import android.graphics.drawable.ColorDrawable
 import android.os.Build
 import android.os.VibrationEffect
 import android.os.Vibrator
+import android.os.VibratorManager
 import android.text.InputType
 import android.util.Log
+import android.view.HapticFeedbackConstants
 import android.view.KeyEvent
 import android.view.View
 import android.view.inputmethod.EditorInfo
@@ -43,6 +46,7 @@ import androidx.lifecycle.ViewModelStoreOwner
 import androidx.savedstate.SavedStateRegistry
 import androidx.savedstate.SavedStateRegistryController
 import androidx.savedstate.SavedStateRegistryOwner
+import unicode.sinhala.keyboard.clipboard.ClipboardHistoryManager
 
 class InputMethodService : android.inputmethodservice.InputMethodService(),
     KeyboardView.ClickListener, KeyboardView.SwipeListener, LifecycleOwner, ViewModelStoreOwner, SavedStateRegistryOwner {
@@ -100,14 +104,69 @@ class InputMethodService : android.inputmethodservice.InputMethodService(),
         debouncer = DebouncedInputHandler(serviceScope, 700L)
 
         EmojiData.loadRecentEmojis(this)
+        registerClipboardListener()
     }
 
     override fun onDestroy() {
+        unregisterClipboardListener()
         lifecycleRegistry.handleLifecycleEvent(Lifecycle.Event.ON_DESTROY)
         store.clear()
         super.onDestroy()
         serviceJob.cancel()
         Log.d("IME", "onDestroy called")
+    }
+
+    private var clipboardManager: ClipboardManager? = null
+    private val clipChangedListener = ClipboardManager.OnPrimaryClipChangedListener {
+        onClipboardChanged()
+    }
+
+    private fun registerClipboardListener() {
+        if (clipboardManager == null) {
+            clipboardManager = getSystemService(CLIPBOARD_SERVICE) as? ClipboardManager
+        }
+        try {
+            clipboardManager?.addPrimaryClipChangedListener(clipChangedListener)
+        } catch (e: Exception) {
+            Log.e("IME", "Failed to add primary clip listener", e)
+        }
+    }
+
+    private fun unregisterClipboardListener() {
+        try {
+            clipboardManager?.removePrimaryClipChangedListener(clipChangedListener)
+        } catch (e: Exception) {
+            Log.e("IME", "Failed to remove primary clip listener", e)
+        }
+    }
+
+    private fun onClipboardChanged() {
+        if (!ClipboardHistoryManager.isEnabled(this)) return
+        val clipData = clipboardManager?.primaryClip ?: return
+        if (clipData.itemCount > 0) {
+            val text = clipData.getItemAt(0).coerceToText(this)?.toString()
+            if (!text.isNullOrBlank()) {
+                val newClip = ClipboardHistoryManager.addClip(this, text)
+                if (newClip != null) {
+                    showClipboardChip(newClip.text)
+                }
+            }
+        }
+    }
+
+    private fun checkAndShowRecentClipboardChip() {
+        val recent = ClipboardHistoryManager.getLatestClipIfRecent(this, 60_000L)
+        if (recent != null) {
+            showClipboardChip(recent.text)
+        } else {
+            topBarController?.hideClipboardSuggestion()
+        }
+    }
+
+    private fun showClipboardChip(text: String) {
+        topBarController?.showClipboardSuggestion(text) { pastedText ->
+            specialClick(pastedText)
+        }
     }
 
     private fun commitWijesekaraChar(char: String) {
@@ -166,6 +225,7 @@ class InputMethodService : android.inputmethodservice.InputMethodService(),
             topBarController = TopBarController(
                 keyboardView.suggestionContainerView,
                 keyboardView.emojiButtonView,
+                keyboardView.clipboardButtonView,
                 Prefs.getDarkTheme(this)
             )
             suggestionTextViews = keyboardView.getSuggestionTextViews()
@@ -234,10 +294,24 @@ class InputMethodService : android.inputmethodservice.InputMethodService(),
 
 
         try {
+            if (::keyboardView.isInitialized) {
+                keyboardView.updateDimensions(
+                    Prefs.getRowHeight(this),
+                    Prefs.getTextSize(this)
+                )
+            }
             updateKeyboard()
         } catch (t: Throwable) {
             Log.e("IME", "updateKeyboard failed in onStartInputView", t)
         }
+
+        if (isNumericInputType(info)) {
+            keyboardView.toggleNumpadView(true)
+        } else {
+            keyboardView.toggleNumpadView(false)
+        }
+
+        checkAndShowRecentClipboardChip()
 
 
         if (restarting || info == null || currentInputConnection == null) {
@@ -1101,32 +1175,63 @@ class InputMethodService : android.inputmethodservice.InputMethodService(),
             try {
                 keyboardView.buttonActionAction.setImageResource(iconRes)
                 keyboardView.buttonActionAction.contentDescription = desc
+                keyboardView.numpadActionView.setImageResource(iconRes)
+                keyboardView.numpadActionView.contentDescription = desc
             } catch (t: Throwable) {
 
                 Log.e("IME", "Failed to set action icon resource", t)
                 keyboardView.buttonActionAction.setImageResource(R.drawable.ic_keyboard_return)
                 keyboardView.buttonActionAction.contentDescription = "Enter"
+                keyboardView.numpadActionView.setImageResource(R.drawable.ic_keyboard_return)
+                keyboardView.numpadActionView.contentDescription = "Enter"
             }
         } else {
 
             keyboardView.buttonActionAction.setImageResource(R.drawable.ic_keyboard_return)
             keyboardView.buttonActionAction.contentDescription = "Enter"
+            keyboardView.numpadActionView.setImageResource(R.drawable.ic_keyboard_return)
+            keyboardView.numpadActionView.contentDescription = "Enter"
         }
+    }
+
+    private fun isNumericInputType(info: EditorInfo?): Boolean {
+        if (info == null) return false
+        val inputClass = info.inputType and InputType.TYPE_MASK_CLASS
+        return inputClass == InputType.TYPE_CLASS_NUMBER ||
+               inputClass == InputType.TYPE_CLASS_PHONE ||
+               inputClass == InputType.TYPE_CLASS_DATETIME
     }
 
     private fun vibrate() {
         if (!Prefs.getVibration(this)) return
-        val vibrator = getSystemService(VIBRATOR_SERVICE) as? Vibrator
-        if (vibrator == null) {
-            Log.w("IME", "Vibrator service not available")
-            return
-        }
+
         try {
-            if (Build.VERSION.SDK_INT >= 26) {
-                vibrator.vibrate(VibrationEffect.createOneShot(20, VibrationEffect.DEFAULT_AMPLITUDE))
+            if (::keyboardView.isInitialized) {
+                keyboardView.performHapticFeedback(
+                    HapticFeedbackConstants.KEYBOARD_TAP,
+                    HapticFeedbackConstants.FLAG_IGNORE_GLOBAL_SETTING
+                )
+            }
+        } catch (_: Throwable) { }
+
+        try {
+            val vibrator = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                val vibratorManager = getSystemService(VIBRATOR_MANAGER_SERVICE) as? VibratorManager
+                vibratorManager?.defaultVibrator
             } else {
                 @Suppress("DEPRECATION")
-                vibrator.vibrate(20)
+                getSystemService(VIBRATOR_SERVICE) as? Vibrator
+            }
+
+            if (vibrator != null && vibrator.hasVibrator()) {
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                    vibrator.vibrate(VibrationEffect.createPredefined(VibrationEffect.EFFECT_CLICK))
+                } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                    vibrator.vibrate(VibrationEffect.createOneShot(15, VibrationEffect.DEFAULT_AMPLITUDE))
+                } else {
+                    @Suppress("DEPRECATION")
+                    vibrator.vibrate(15)
+                }
             }
         } catch (t: Throwable) {
             Log.e("IME", "vibrate failed", t)

@@ -18,6 +18,7 @@ import androidx.core.view.children
 import androidx.core.view.isVisible
 import androidx.appcompat.content.res.AppCompatResources
 import androidx.recyclerview.widget.GridLayoutManager
+import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -27,6 +28,8 @@ import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.launchIn
 import unicode.sinhala.com.R
 import unicode.sinhala.com.databinding.KeyboardLayoutBinding
+import unicode.sinhala.keyboard.clipboard.ClipboardAdapter
+import unicode.sinhala.keyboard.clipboard.ClipboardHistoryManager
 import kotlin.math.max
 import kotlin.math.min
 
@@ -35,12 +38,12 @@ class KeyboardView(
     context: Context,
     private val clickListener: ClickListener,
     private val swipeListener: SwipeListener,
-    private val rowHeight: Int,
+    private var rowHeight: Int,
     private val darkTheme: Boolean,
     keyBorders: Boolean,
     private val swipeToErase: Boolean,
     private val swipeToMoveCursor: Boolean,
-    textSize: Int
+    private var textSize: Int
 ) : LinearLayout(context) {
 
     interface ClickListener {
@@ -64,6 +67,8 @@ class KeyboardView(
     var keyboardVisible = false
 
     private lateinit var binding: KeyboardLayoutBinding
+    private lateinit var emojiAdapter: EmojiAdapter
+    private var clipboardAdapter: ClipboardAdapter? = null
 
     val viewBlank1: View get() = binding.blank1
     val viewBlank2: View get() = binding.blank2
@@ -339,32 +344,31 @@ class KeyboardView(
 
             // Emoji Logic
             binding.emojiView.root.layoutParams.height = rowHeight * 5
-
             binding.emojiView.emojiBottomBar.layoutParams.height = rowHeight
 
             val emojiCategories = binding.emojiView.emojiCategories
             val emojiGrid = binding.emojiView.emojiGrid
-            val emojiCategoriesScroll = binding.emojiView.emojiCategoriesScroll
 
-            val emojiAdapter = EmojiAdapter(
+            val localEmojiAdapter = EmojiAdapter(
                 contextThemeWrapper,
                 clickListener,
                 darkTheme,
                 EmojiData.emojis["Recent"] ?: emptyList(),
                 textSize
             )
+            emojiAdapter = localEmojiAdapter
             emojiGrid.layoutManager = GridLayoutManager(context, 8)
-            emojiGrid.adapter = emojiAdapter
+            emojiGrid.adapter = localEmojiAdapter
 
-            val categoryClickListener = View.OnClickListener { v ->
+            val categoryClickListener = OnClickListener { v ->
                 val category = v.tag as String
-                emojiAdapter.updateEmojis(EmojiData.emojis[category] ?: emptyList())
+                localEmojiAdapter.updateEmojis(EmojiData.emojis[category] ?: emptyList())
                 for (child in emojiCategories.children) {
                     child.background = null
                 }
                 v.background = AppCompatResources.getDrawable(
                     contextThemeWrapper,
-                    R.drawable.key_background_pressed
+                    R.drawable.bg_chip
                 )
             }
 
@@ -372,11 +376,12 @@ class KeyboardView(
                 val categoryView = TextView(contextThemeWrapper)
                 val emojiIcon = if (category == "Recent") "🕒" else (EmojiData.emojis[category]?.first() ?: "😀")
                 categoryView.text = emojiIcon
-                categoryView.textSize = textSize.toFloat()
+                categoryView.textSize = (textSize * 0.8f).coerceIn(18f, 26f)
                 categoryView.gravity = Gravity.CENTER
                 categoryView.setTextColor(if (darkTheme) 0xFFFFFFFF.toInt() else 0xFF000000.toInt())
-                categoryView.layoutParams =
-                    LinearLayout.LayoutParams(rowHeight, LayoutParams.MATCH_PARENT)
+                val lp = LayoutParams((rowHeight * 0.9f).toInt(), LayoutParams.MATCH_PARENT)
+                lp.setMargins(4, 4, 4, 4)
+                categoryView.layoutParams = lp
                 categoryView.tag = category
                 categoryView.setOnClickListener(categoryClickListener)
                 emojiCategories.addView(categoryView)
@@ -385,24 +390,64 @@ class KeyboardView(
             // Click the first category (Recent) to load it by default
             (emojiCategories.getChildAt(0) as? TextView)?.performClick()
 
-            fun toggleEmojiView(visible: Boolean) {
-                binding.keyboardRows.visibility = if (visible) View.GONE else View.VISIBLE
-                binding.emojiView.root.visibility = if (visible) View.VISIBLE else View.GONE
-                binding.btnEmoji.setImageResource(if (visible) R.drawable.ic_keyboard_arrow_left else R.drawable.ic_emoji)
-                
-                // If showing emoji view, refresh Recent category as it might have changed
-                if (visible) {
-                     val firstChild = emojiCategories.getChildAt(0) as? TextView
-                     // Only refresh if the "Recent" tab is currently selected
-                     if (firstChild?.background != null) {
-                         emojiAdapter.updateEmojis(EmojiData.emojis["Recent"] ?: emptyList())
-                     }
+            binding.btnEmoji.setOnClickListener { toggleEmojiView(binding.emojiView.root.visibility != VISIBLE) }
+            binding.emojiView.btnAbc.setOnClickListener { toggleEmojiView(false) }
+
+            // Clipboard Logic
+            binding.clipboardView.root.layoutParams.height = rowHeight * 5
+
+            val localClipboardAdapter = ClipboardAdapter(
+                onItemClick = { item ->
+                    clickListener.specialClick(item.text)
+                    toggleClipboardView(false)
+                },
+                onPinClick = { item ->
+                    ClipboardHistoryManager.togglePin(context, item.id)
+                    refreshClipboardList()
+                },
+                onDeleteClick = { item ->
+                    ClipboardHistoryManager.deleteItem(context, item.id)
+                    refreshClipboardList()
+                }
+            )
+            clipboardAdapter = localClipboardAdapter
+
+            binding.clipboardView.clipboardRecycler.layoutManager = LinearLayoutManager(context)
+            binding.clipboardView.clipboardRecycler.adapter = localClipboardAdapter
+
+            binding.btnClipboard.setOnClickListener { toggleClipboardView(binding.clipboardView.root.visibility != VISIBLE) }
+            binding.clipboardView.btnCloseClipboard.setOnClickListener { toggleClipboardView(false) }
+
+            binding.clipboardView.switchClipboardToggle.setOnCheckedChangeListener { _, isChecked ->
+                ClipboardHistoryManager.setEnabled(context, isChecked)
+                refreshClipboardList()
+            }
+
+            binding.clipboardView.btnClearAll.setOnClickListener {
+                ClipboardHistoryManager.clearAll(context)
+                refreshClipboardList()
+            }
+
+            // Numpad Setup
+            binding.numpadView.root.layoutParams.height = rowHeight * 5
+
+            val numButtons = listOf(
+                binding.numpadView.num1, binding.numpadView.num2, binding.numpadView.num3,
+                binding.numpadView.num4, binding.numpadView.num5, binding.numpadView.num6,
+                binding.numpadView.num7, binding.numpadView.num8, binding.numpadView.num9,
+                binding.numpadView.num0, binding.numpadView.numDot, binding.numpadView.numComma,
+                binding.numpadView.numPlus, binding.numpadView.numMinus
+            )
+
+            for (btn in numButtons) {
+                btn.clickListener = { tag ->
+                    clickListener.numberClick(tag)
                 }
             }
 
-            binding.btnEmoji.setOnClickListener { toggleEmojiView(binding.keyboardRows.isVisible) }
-
-            binding.emojiView.btnAbc.setOnClickListener { toggleEmojiView(false) }
+            binding.numpadView.numBackspace.setOnTouchListener(backspaceTouchListener)
+            binding.numpadView.numAbc.setOnClickListener { toggleNumpadView(false) }
+            binding.numpadView.numAction.setOnClickListener { clickListener.functionClick(Function.ACTION) }
         } catch (t: Throwable) {
             Log.e("KeyboardView", "Error during KeyboardView init configuration", t)
 
@@ -496,9 +541,163 @@ class KeyboardView(
         binding.lang.setImageResource(iconResId)
     }
 
+    fun updateDimensions(newRowHeight: Int, newTextSize: Int) {
+        if (!::binding.isInitialized) return
+        this.rowHeight = newRowHeight
+        this.textSize = newTextSize
+
+        binding.keyRow1.layoutParams.height = newRowHeight
+        binding.keyRow2.layoutParams.height = newRowHeight
+        binding.keyRow3.layoutParams.height = newRowHeight
+        binding.keyRow4.layoutParams.height = newRowHeight
+        binding.keyRow5.layoutParams.height = newRowHeight
+
+        binding.keyRow1.requestLayout()
+        binding.keyRow2.requestLayout()
+        binding.keyRow3.requestLayout()
+        binding.keyRow4.requestLayout()
+        binding.keyRow5.requestLayout()
+
+        for (row in binding.keyboardRows.children) {
+            if (row is LinearLayout) {
+                for (button in row.children) {
+                    if (button is KeyboardButton) {
+                        button.textSize = newTextSize.toFloat()
+                        button.requestLayout()
+                        button.invalidate()
+                    }
+                }
+            }
+        }
+
+        val density = resources.displayMetrics.density
+        val targetIconSize = newTextSize * density
+        val padding = max(0, ((newRowHeight - targetIconSize) / 2).toInt())
+        binding.emojiView.btnBackspace.setPadding(padding, padding, padding, padding)
+        binding.emojiView.btnAbc.setPadding(padding, padding, padding, padding)
+
+        binding.emojiView.root.layoutParams.height = newRowHeight * 5
+        binding.emojiView.emojiBottomBar.layoutParams.height = newRowHeight
+        binding.clipboardView.root.layoutParams.height = newRowHeight * 5
+        binding.numpadView.root.layoutParams.height = newRowHeight * 5
+
+        for (row in binding.numpadView.numpadRoot.children) {
+            if (row is LinearLayout) {
+                for (button in row.children) {
+                    if (button is KeyboardButton) {
+                        button.textSize = (newTextSize * 0.9f).coerceIn(18f, 32f)
+                        button.requestLayout()
+                        button.invalidate()
+                    }
+                }
+            }
+        }
+
+        binding.keyboardRows.requestLayout()
+        binding.root.requestLayout()
+        requestLayout()
+        invalidate()
+    }
+
+    var isNumpadMode = false
+        private set
+
+    fun refreshClipboardList() {
+        if (!::binding.isInitialized) return
+        val isEnabled = ClipboardHistoryManager.isEnabled(context)
+        binding.clipboardView.switchClipboardToggle.isChecked = isEnabled
+        val items = ClipboardHistoryManager.getItems(context)
+
+        if (items.isEmpty() || !isEnabled) {
+            binding.clipboardView.tvEmptyClipboard.visibility = VISIBLE
+            binding.clipboardView.tvEmptyClipboard.text = if (!isEnabled) {
+                "Clipboard history is paused."
+            } else {
+                "Copied text will show up here"
+            }
+            binding.clipboardView.clipboardRecycler.visibility = GONE
+        } else {
+            binding.clipboardView.tvEmptyClipboard.visibility = GONE
+            binding.clipboardView.clipboardRecycler.visibility = VISIBLE
+            clipboardAdapter?.submitList(items)
+        }
+    }
+
+    fun toggleNumpadView(visible: Boolean) {
+        if (!::binding.isInitialized) return
+        isNumpadMode = visible
+        if (visible) {
+            binding.keyboardRows.visibility = GONE
+            binding.emojiView.root.visibility = GONE
+            binding.clipboardView.root.visibility = GONE
+            binding.numpadView.root.visibility = VISIBLE
+            binding.btnEmoji.setImageResource(R.drawable.ic_emoji)
+            binding.btnClipboard.setImageResource(R.drawable.ic_clipboard)
+        } else {
+            binding.numpadView.root.visibility = GONE
+            binding.keyboardRows.visibility = VISIBLE
+            binding.emojiView.root.visibility = GONE
+            binding.clipboardView.root.visibility = GONE
+            binding.btnEmoji.setImageResource(R.drawable.ic_emoji)
+            binding.btnClipboard.setImageResource(R.drawable.ic_clipboard)
+        }
+    }
+
+    fun toggleEmojiView(visible: Boolean) {
+        if (!::binding.isInitialized) return
+        if (visible) {
+            binding.keyboardRows.visibility = GONE
+            binding.numpadView.root.visibility = GONE
+            binding.clipboardView.root.visibility = GONE
+            binding.emojiView.root.visibility = VISIBLE
+            binding.btnEmoji.setImageResource(R.drawable.ic_keyboard_arrow_left)
+            binding.btnClipboard.setImageResource(R.drawable.ic_clipboard)
+
+            val firstChild = binding.emojiView.emojiCategories.getChildAt(0) as? TextView
+            if (firstChild?.background != null) {
+                emojiAdapter.updateEmojis(EmojiData.emojis["Recent"] ?: emptyList())
+            }
+        } else {
+            binding.emojiView.root.visibility = GONE
+            binding.btnEmoji.setImageResource(R.drawable.ic_emoji)
+            if (isNumpadMode) {
+                binding.numpadView.root.visibility = VISIBLE
+                binding.keyboardRows.visibility = GONE
+            } else {
+                binding.keyboardRows.visibility = VISIBLE
+                binding.numpadView.root.visibility = GONE
+            }
+        }
+    }
+
+    fun toggleClipboardView(visible: Boolean) {
+        if (!::binding.isInitialized) return
+        if (visible) {
+            binding.keyboardRows.visibility = GONE
+            binding.numpadView.root.visibility = GONE
+            binding.emojiView.root.visibility = GONE
+            binding.clipboardView.root.visibility = VISIBLE
+            binding.btnClipboard.setImageResource(R.drawable.ic_keyboard_arrow_left)
+            binding.btnEmoji.setImageResource(R.drawable.ic_emoji)
+            refreshClipboardList()
+        } else {
+            binding.clipboardView.root.visibility = GONE
+            binding.btnClipboard.setImageResource(R.drawable.ic_clipboard)
+            if (isNumpadMode) {
+                binding.numpadView.root.visibility = VISIBLE
+                binding.keyboardRows.visibility = GONE
+            } else {
+                binding.keyboardRows.visibility = VISIBLE
+                binding.numpadView.root.visibility = GONE
+            }
+        }
+    }
+
     // Expose top bar and suggestion views for IME to control
     val topBarView: LinearLayout get() = binding.topBar
     val emojiButtonView: ImageView get() = binding.btnEmoji
+    val clipboardButtonView: ImageView get() = binding.btnClipboard
+    val numpadActionView: ImageView get() = binding.numpadView.numAction
     // suggestionContainer in the binding is a generated binding object; use its root view when a View is expected
     val suggestionContainerView: View get() = binding.suggestionContainer.root
     fun getSuggestionTextViews(): List<TextView> {

@@ -1,14 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <selector xmlns:android="http://schemas.android.com/apk/res/android">
-
-    <!-- PRESSED STATE -->
     <item android:state_pressed="true">
         <layer-list>
-            <item
-                android:left="3dp"
-                android:right="3dp"
-                android:top="4dp"
-                android:bottom="4dp">
+            <item android:left="3dp" android:right="3dp" android:top="4dp" android:bottom="4dp">
                 <shape>
                     <solid android:color="?attr/keyActionPressed" />
                     <corners android:radius="14dp" />
@@ -16,21 +10,14 @@
             </item>
         </layer-list>
     </item>
-
-    <!-- NORMAL STATE -->
     <item>
         <layer-list>
-            <item
-                android:left="2dp"
-                android:right="2dp"
-                android:top="3dp"
-                android:bottom="3dp">
+            <item android:left="3dp" android:right="3dp" android:top="4dp" android:bottom="4dp">
                 <shape>
                     <solid android:color="?attr/keyAction" />
-                    <corners android:radius="18dp" />
+                    <corners android:radius="14dp" />
                 </shape>
             </item>
         </layer-list>
     </item>
-
 </selector>

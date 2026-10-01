@@ -12,7 +12,7 @@ class Prefs(context: Context) {
         set(value) = prefs.edit().putBoolean("layout_english", value).apply()
 
     var layoutWijesekara: Boolean
-        get() = prefs.getBoolean("layout_wijesekara", true)
+        get() = prefs.getBoolean("layout_wijesekara", false)
         set(value) = prefs.edit().putBoolean("layout_wijesekara", value).apply()
 
     var layoutSinglish: Boolean
@@ -20,7 +20,7 @@ class Prefs(context: Context) {
         set(value) = prefs.edit().putBoolean("layout_singlish", value).apply()
 
     var automaticTheme: Boolean
-        get() = prefs.getBoolean("automatic_theme", false)
+        get() = prefs.getBoolean("automatic_theme", true)
         set(value) = prefs.edit().putBoolean("automatic_theme", value).apply()
 
     var darkTheme: Boolean
@@ -44,21 +44,22 @@ class Prefs(context: Context) {
         set(value) = prefs.edit().putBoolean("swipe_to_move_cursor", value).apply()
 
     var heightPercentage: Int
-        get() = prefs.getInt("height_percentage", 100)
+        get() = prefs.getInt("height_percentage", 124)
         set(value) = prefs.edit().putInt("height_percentage", value).apply()
 
     var textSize: Int
-        get() = prefs.getInt("text_size", 16)
+        get() = prefs.getInt("text_size", 34)
         set(value) = prefs.edit().putInt("text_size", value).apply()
 
     var vibration: Boolean
-        get() = prefs.getBoolean("vibration", true)
+        get() = prefs.getBoolean("vibration", false)
         set(value) = prefs.edit().putBoolean("vibration", value).apply()
 
     fun getKeyboardLayout(): KeyboardLayout {
         return when {
-            layoutWijesekara -> KeyboardLayout.WIJESEKARA
+            layoutEnglish -> KeyboardLayout.ENGLISH
             layoutSinglish -> KeyboardLayout.SINGLISH
+            layoutWijesekara -> KeyboardLayout.WIJESEKARA
             else -> KeyboardLayout.ENGLISH
         }
     }
@@ -66,12 +67,16 @@ class Prefs(context: Context) {
     companion object {
         fun getRowHeight(context: Context): Int {
             val prefs = context.getSharedPreferences("prefs", Context.MODE_PRIVATE)
-            return prefs.getInt("height_percentage", 100)
+            val percentage = prefs.getInt("height_percentage", 124)
+            val baseDp = 50f
+            val density = context.resources.displayMetrics.density
+            val basePx = baseDp * density
+            return (basePx * (percentage / 100f)).toInt()
         }
 
         fun getDarkTheme(context: Context): Boolean {
             val prefs = context.getSharedPreferences("prefs", Context.MODE_PRIVATE)
-            if (prefs.getBoolean("automatic_theme", false)) {
+            if (prefs.getBoolean("automatic_theme", true)) {
                 val nightModeFlags = context.resources.configuration.uiMode and Configuration.UI_MODE_NIGHT_MASK
                 return nightModeFlags == Configuration.UI_MODE_NIGHT_YES
             }
@@ -80,7 +85,7 @@ class Prefs(context: Context) {
 
         fun getAutomaticTheme(context: Context): Boolean {
             val prefs = context.getSharedPreferences("prefs", Context.MODE_PRIVATE)
-            return prefs.getBoolean("automatic_theme", false)
+            return prefs.getBoolean("automatic_theme", true)
         }
 
         fun getKeyBorders(context: Context): Boolean {
@@ -100,7 +105,7 @@ class Prefs(context: Context) {
 
         fun getTextSize(context: Context): Int {
             val prefs = context.getSharedPreferences("prefs", Context.MODE_PRIVATE)
-            return prefs.getInt("text_size", 16)
+            return prefs.getInt("text_size", 34)
         }
 
         fun getKeyboardLayout(context: Context): KeyboardLayout {
@@ -132,7 +137,7 @@ class Prefs(context: Context) {
 
         fun getVibration(context: Context): Boolean {
             val prefs = context.getSharedPreferences("prefs", Context.MODE_PRIVATE)
-            return prefs.getBoolean("vibration", true)
+            return prefs.getBoolean("vibration", false)
         }
 
         // New helper: return the list of enabled layouts in priority order
@@ -140,8 +145,8 @@ class Prefs(context: Context) {
             val prefs = context.getSharedPreferences("prefs", Context.MODE_PRIVATE)
             val enabled = mutableListOf<KeyboardLayout>()
             if (prefs.getBoolean("layout_english", true)) enabled.add(KeyboardLayout.ENGLISH)
-            if (prefs.getBoolean("layout_wijesekara", true)) enabled.add(KeyboardLayout.WIJESEKARA)
             if (prefs.getBoolean("layout_singlish", true)) enabled.add(KeyboardLayout.SINGLISH)
+            if (prefs.getBoolean("layout_wijesekara", false)) enabled.add(KeyboardLayout.WIJESEKARA)
             // Ensure at least English is available
             if (enabled.isEmpty()) enabled.add(KeyboardLayout.ENGLISH)
             return enabled

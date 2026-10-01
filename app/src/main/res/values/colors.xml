@@ -1,37 +1,41 @@
 <?xml version="1.0" encoding="utf-8"?>
-
-
 <resources>
-    <!-- Light / Neutral tokens -->
-    <color name="light_1">#D9D9D9</color>
-    <color name="light_2">#a6a6a6</color>
+    <!-- Material 3 Light Surface & Key Tokens -->
+    <color name="m3_bg_light">#F3F4F9</color>
+    <color name="m3_key_light">#FFFFFF</color>
+    <color name="m3_func_light">#E3E8EF</color>
+    <color name="m3_func_pressed_light">#CDD5DF</color>
+    <color name="text_on_light">#1A1C1E</color>
+    <color name="text_on_light_variant">#43474E</color>
 
-    <!-- Dark / Neutral tokens -->
-    <color name="night_1">#262626</color>
-    <color name="night_2">#595959</color>
+    <!-- Material 3 Dark Surface & Key Tokens -->
+    <color name="m3_bg_dark">#1B1C1F</color>
+    <color name="m3_key_dark">#2B2D31</color>
+    <color name="m3_func_dark">#373A40</color>
+    <color name="m3_func_pressed_dark">#474A52</color>
+    <color name="text_on_dark">#E2E2E6</color>
+    <color name="text_on_dark_variant">#C4C6CF</color>
 
-    <!-- Text tokens (explicit, used by themes) -->
-    <color name="text_on_light">#000000</color> <!-- black for light backgrounds -->
-    <color name="text_on_light_variant">#222222</color>
-    <color name="text_on_dark">#FFFFFF</color> <!-- white for dark backgrounds -->
-    <color name="text_on_dark_variant">#E0E0E0</color>
+    <!-- Material 3 Primary / Accent Tokens -->
+    <color name="m3_accent">#0061A4</color>
+    <color name="m3_accent_pressed">#004885</color>
+    <color name="m3_accent_container_light">#D1E4FF</color>
+    <color name="m3_accent_container_dark">#00497D</color>
 
-    <!-- Updated Gboard-style key palette (white/black based fallbacks) -->
-    <color name="gboard_bg_light">#FFFFFF</color>        <!-- keyboard background (light) -->
-    <color name="gboard_key_light">#F5F5F5</color>       <!-- normal key (light) -->
-    <color name="gboard_func_light">#E8E8E8</color>      <!-- function key (light) -->
-    <color name="gboard_func_pressed_light">#DADADA</color>
+    <!-- Compatibility tokens mapped to M3 -->
+    <color name="gboard_bg_light">@color/m3_bg_light</color>
+    <color name="gboard_key_light">@color/m3_key_light</color>
+    <color name="gboard_func_light">@color/m3_func_light</color>
+    <color name="gboard_func_pressed_light">@color/m3_func_pressed_light</color>
 
-    <color name="gboard_bg_dark">#121212</color>         <!-- keyboard background (dark) -->
-    <color name="gboard_key_dark">#1E1E1E</color>        <!-- normal key (dark) -->
-    <color name="gboard_func_dark">#2A2A2A</color>       <!-- function key (dark) -->
-    <color name="gboard_func_pressed_dark">#333333</color>
+    <color name="gboard_bg_dark">@color/m3_bg_dark</color>
+    <color name="gboard_key_dark">@color/m3_key_dark</color>
+    <color name="gboard_func_dark">@color/m3_func_dark</color>
+    <color name="gboard_func_pressed_dark">@color/m3_func_pressed_dark</color>
 
-    <!-- Action / Accent colors (keep existing action blue) -->
-    <color name="gboard_action_blue">#4285F4</color>
-    <color name="gboard_action_blue_pressed">#3367D6</color>
+    <color name="gboard_action_blue">@color/m3_accent</color>
+    <color name="gboard_action_blue_pressed">@color/m3_accent_pressed</color>
 
-    <!-- Misc tokens kept for compatibility -->
-    <color name="blue">#3956aa</color>
-    <color name="yellow">#dfc540</color>
+    <color name="blue">#0061A4</color>
+    <color name="yellow">#E5C158</color>
 </resources>

@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="horizontal"
+    android:gravity="center_vertical"
+    android:background="@drawable/key_background_normal"
+    android:layout_marginHorizontal="4dp"
+    android:layout_marginVertical="2dp"
+    android:padding="8dp"
+    android:clickable="true"
+    android:focusable="true">
+
+    <TextView
+        android:id="@+id/tv_clip_text"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:maxLines="3"
+        android:ellipsize="end"
+        android:textColor="?attr/foreground"
+        android:textSize="14sp"
+        android:paddingEnd="8dp" />
+
+    <ImageView
+        android:id="@+id/btn_pin"
+        android:layout_width="32dp"
+        android:layout_height="32dp"
+        android:padding="6dp"
+        android:src="@drawable/ic_pin"
+        android:background="?android:selectableItemBackgroundBorderless"
+        android:contentDescription="Pin clip" />
+
+    <ImageView
+        android:id="@+id/btn_delete"
+        android:layout_width="32dp"
+        android:layout_height="32dp"
+        android:padding="6dp"
+        android:src="@drawable/ic_delete"
+        android:background="?android:selectableItemBackgroundBorderless"
+        android:contentDescription="Delete clip" />
+
+</LinearLayout>

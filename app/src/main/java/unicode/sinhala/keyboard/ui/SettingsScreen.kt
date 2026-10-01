@@ -2,7 +2,9 @@ package unicode.sinhala.keyboard.ui
 
 import android.content.Context
 import android.content.Intent
+import android.content.SharedPreferences
 import android.net.Uri
+import android.widget.Toast
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.rememberScrollState
@@ -14,6 +16,7 @@ import androidx.compose.ui.res.stringResource
 import unicode.sinhala.com.BuildConfig
 import unicode.sinhala.com.R
 import unicode.sinhala.keyboard.DonateActivity
+import unicode.sinhala.keyboard.clipboard.ClipboardHistoryManager
 import unicode.sinhala.keyboard.ui.components.PreferenceItem
 import unicode.sinhala.keyboard.ui.components.SettingsCategory
 import unicode.sinhala.keyboard.ui.components.SliderPreference
@@ -38,7 +41,7 @@ fun SettingsScreen() {
             onCheckedChange = { layoutEnglish.value = it }
         )
 
-        val layoutWijesekara = rememberBooleanPreference(context, "layout_wijesekara", true)
+        val layoutWijesekara = rememberBooleanPreference(context, "layout_wijesekara", false)
         SwitchPreference(
             title = stringResource(R.string.wijesekara),
             checked = layoutWijesekara.value,
@@ -52,11 +55,12 @@ fun SettingsScreen() {
             onCheckedChange = { layoutSinglish.value = it }
         )
 
-        SettingsCategory(title = "Appearance")
+        SettingsCategory(title = "Appearance & Theme")
 
         val automaticTheme = rememberBooleanPreference(context, "automatic_theme", true)
         SwitchPreference(
             title = "ස්වයංක්‍රීය තේමාව",
+            summary = "System Material You dynamic colors",
             checked = automaticTheme.value,
             onCheckedChange = { automaticTheme.value = it }
         )
@@ -77,25 +81,77 @@ fun SettingsScreen() {
             onCheckedChange = { keyBorders.value = it }
         )
 
-        SettingsCategory(title = "Layout")
+        SettingsCategory(title = "Keyboard Dimensions (6\"+ Phones)")
 
-        val heightPercentage = rememberIntPreference(context, "height_percentage", 100)
+        val heightPercentage = rememberIntPreference(context, "height_percentage", 124)
         SliderPreference(
-            title = "උස",
+            title = "උස (Height)",
             value = heightPercentage.value,
-            range = 70f..130f,
+            unit = "%",
+            range = 80f..140f,
             onValueChange = { heightPercentage.value = it }
         )
 
-        val textSize = rememberIntPreference(context, "text_size", 28)
+        val textSize = rememberIntPreference(context, "text_size", 34)
         SliderPreference(
-            title = "අකුරුවල ප්‍රමාණය",
+            title = "අකුරුවල ප්‍රමාණය (Text Size)",
             value = textSize.value,
+            unit = " sp",
             range = 20f..40f,
             onValueChange = { textSize.value = it }
         )
 
-        SettingsCategory(title = "Support")
+        SettingsCategory(title = "Gestures & Feedback")
+
+        val swipeToErase = rememberBooleanPreference(context, "swipe_to_erase", true)
+        SwitchPreference(
+            title = "Swipe Left on Backspace to Erase",
+            summary = "Drag backspace key to delete text quickly",
+            checked = swipeToErase.value,
+            onCheckedChange = { swipeToErase.value = it }
+        )
+
+        val swipeToMoveCursor = rememberBooleanPreference(context, "swipe_to_move_cursor", true)
+        SwitchPreference(
+            title = "Swipe Spacebar to Move Cursor",
+            summary = "Slide left/right on spacebar to navigate cursor",
+            checked = swipeToMoveCursor.value,
+            onCheckedChange = { swipeToMoveCursor.value = it }
+        )
+
+        val vibration = rememberBooleanPreference(context, "vibration", false)
+        SwitchPreference(
+            title = "Haptic Vibration Feedback",
+            summary = "Vibrate briefly on key presses",
+            checked = vibration.value,
+            onCheckedChange = { vibration.value = it }
+        )
+
+        SettingsCategory(title = "Smart Clipboard")
+
+        var isClipboardEnabled by remember {
+            mutableStateOf(ClipboardHistoryManager.isEnabled(context))
+        }
+        SwitchPreference(
+            title = "Clipboard History",
+            summary = "Automatically save copied text locally",
+            checked = isClipboardEnabled,
+            onCheckedChange = { checked ->
+                isClipboardEnabled = checked
+                ClipboardHistoryManager.setEnabled(context, checked)
+            }
+        )
+
+        PreferenceItem(
+            title = "Clear Clipboard History",
+            summary = "Delete all stored copied items",
+            onClick = {
+                ClipboardHistoryManager.clearAll(context)
+                Toast.makeText(context, "Clipboard history cleared", Toast.LENGTH_SHORT).show()
+            }
+        )
+
+        SettingsCategory(title = "Support & About")
 
         PreferenceItem(
             title = "Buy Me a Coffee",
@@ -127,7 +183,7 @@ fun rememberBooleanPreference(context: Context, key: String, defaultValue: Boole
     val state = remember { mutableStateOf(prefs.getBoolean(key, defaultValue)) }
 
     DisposableEffect(key) {
-        val listener = android.content.SharedPreferences.OnSharedPreferenceChangeListener { sharedPreferences, k ->
+        val listener = SharedPreferences.OnSharedPreferenceChangeListener { sharedPreferences, k ->
             if (k == key) {
                 state.value = sharedPreferences.getBoolean(key, defaultValue)
             }
@@ -159,7 +215,7 @@ fun rememberIntPreference(context: Context, key: String, defaultValue: Int): Mut
     val state = remember { mutableStateOf(prefs.getInt(key, defaultValue)) }
 
     DisposableEffect(key) {
-        val listener = android.content.SharedPreferences.OnSharedPreferenceChangeListener { sharedPreferences, k ->
+        val listener = SharedPreferences.OnSharedPreferenceChangeListener { sharedPreferences, k ->
             if (k == key) {
                 state.value = sharedPreferences.getInt(key, defaultValue)
             }
