@@ -1,10 +1,1 @@
-Fox Keyboard is an open-source Sinhala keyboard designed with privacy in mind.
-
-Features:
-• Sinhala Wijesekara layout
-• No internet access
-• No tracking or ads
-• Lightweight and fast
-• Emoji and symbol support
-
-The app works completely offline and does not collect any user data.
+Fox Keyboard is a premier open-source Sinhala keyboard app. Designed with privacy in mind to help users avoid tracking.
