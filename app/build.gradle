@@ -14,6 +14,7 @@ android {
         versionName "1.1.5"
         targetSdkVersion 34
         vectorDrawables.useSupportLibrary = true
+
     }
 
     buildTypes {
@@ -21,6 +22,10 @@ android {
             minifyEnabled true
             shrinkResources true
         }
+    }
+    dependenciesInfo {
+        includeInApk false
+        includeInBundle false
     }
     flavorDimensions += "app_id"
     productFlavors {
